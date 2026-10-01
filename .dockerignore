@@ -1,0 +1,33 @@
+# Pipeline output
+data/
+logs/
+runs/
+
+# Python build artifacts
+__pycache__/
+**/__pycache__/
+*.pyc
+**/*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+
+# Git
+.git/
+.gitignore
+
+# Notebooks aren't needed inside the image
+notebooks/
+
+# Local env files
+.env
+*.env

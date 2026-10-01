@@ -1,0 +1,59 @@
+# Workflow
+#
+#   1. Start F-UJI in the background (one-off):
+#         docker compose up -d fuji
+#
+#   2. Run the full pipeline: all 4 stages, every enabled repository:
+#         docker compose run --rm pipeline
+#
+#   3. Or scope to one repository / specific stages:
+#         docker compose run --rm pipeline --repo nfdi4cat_zenodo
+#         docker compose run --rm pipeline --stages parse analyze
+#         docker compose run --rm pipeline --list-repos
+#
+#   4. When done:
+#         docker compose down
+
+services:
+  fuji:
+    image: ghcr.io/pangaea-data-publisher/fuji@sha256:a75a9c88fb46918afafb09593aa52aecc1adb12eb9f19a2fc2ebb8740be03d97
+    container_name: fuji_fair
+    ports:
+      - "1071:1071"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:1071/fuji/api/v1/ui/', timeout=3).read()"
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 45s
+
+  pipeline:
+    build:
+      context: .
+      args:
+        APP_UID: "${UID:-1000}"
+        APP_GID: "${GID:-1000}"
+    image: fuji-fair-pipeline:latest
+    container_name: fuji_pipeline
+    depends_on:
+      fuji:
+        condition: service_healthy
+    environment:
+      FUJI_BASE_URL: http://fuji:1071
+      # Override credentials from the host shell or a .env file
+      FUJI_USERNAME: "${FUJI_USERNAME:-marvel}"
+      FUJI_PASSWORD: "${FUJI_PASSWORD:-wonderwoman}"
+      NFDI4CAT_DATAVERSE_API_KEY: "${NFDI4CAT_DATAVERSE_API_KEY:-}"
+      BASCAT_FRAUNHOFER_API_KEY: "${BASCAT_FRAUNHOFER_API_KEY:-}"
+      ZENODO_API_TOKEN: "${ZENODO_API_TOKEN:-}"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./runs:/app/runs
+      - ./config.yaml:/app/config.yaml:ro
+    profiles: ["manual"]

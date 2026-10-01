@@ -1,0 +1,12 @@
+# Runtime dependencies. Refresh after a deliberate upgrade:
+# pip install -U <package> && pip freeze | grep -i <package>
+
+# Stages 1-3 (harvest / evaluate / parse)
+requests==2.34.2
+pandas==3.0.3
+pyarrow==24.0.0
+PyYAML==6.0.3
+
+# Stage 4 (analysis + cross-repo comparison)
+duckdb==1.5.2
+matplotlib==3.10.9

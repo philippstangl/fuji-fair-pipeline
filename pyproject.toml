@@ -1,0 +1,24 @@
+[project]
+name = "fuji-fair-pipeline"
+version = "0.1.0"
+description = "A F-UJI FAIR-assessment pipeline for Dataverse, Zenodo and Chemotion research data repositories"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Philipp Stangl", email = "philipp.stangl@fau.de" }]
+keywords = ["FAIR", "F-UJI", "Research Data", "Dataverse", "Zenodo", "Chemotion"]
+
+# The code needs >=3.10 for PEP 604 (`str | None`) unions at runtime.
+requires-python = ">=3.11"
+
+[project.urls]
+Repository = "https://github.com/philippstangl/fuji-fair-pipeline"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests", "pipeline/content.py", "pipeline/harvesters/chemotion.py"]
+addopts = [
+    "--doctest-modules",
+    "--strict-markers",
+    "-ra",
+]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]

@@ -1,0 +1,108 @@
+# Pipeline Configuration
+
+defaults:
+  request_timeout_s: 60
+  polite_delay_s: 0.5  # minimum seconds between pagination requests
+  per_page: 100        # Dataverse max 1000; Zenodo "size" max 100
+  resource_types: [dataset]
+  # Set which payload classes stage 2 evaluates and stage 3 parses
+  content_classes: [data, mixed, unknown]
+  # require_content_classification: false
+  retry:
+    max_attempts: 5
+    backoff_initial_s: 2
+    backoff_multiplier: 2
+
+repositories:
+  - name: nfdi4cat_dataverse
+    type: dataverse
+    enabled: true
+    base_url: https://repository.nfdi4cat.org
+    # Anonymous Dataverse API calls are rate-limited hard, and the limit does not
+    # surface as an error. The instance simply stops accepting connections
+    # partway through a harvest, which then looks like an outage.
+    api_key_env: NFDI4CAT_DATAVERSE_API_KEY
+    # 360s is measured, not guessed. Do not lower this without re-measuring. 
+    # F-UJI returns HTTP 200 with resolved_url='not defined' and a approx. 13% score, which
+    # stage 2 records as `success`, i.e., a bunch of plausible, but meaningless numbers.
+    fuji:
+      polite_delay_s: 360
+
+  - name: nfdi4chem_zenodo
+    type: zenodo
+    enabled: true
+    base_url: https://zenodo.org
+    community: nfdi4chem               # /api/communities/<community>/records
+    per_page: 100                      # max 25 anonymous, 100 with a token
+    access_token_env: ZENODO_API_TOKEN # raises the page-size cap to 100
+    use_concept_doi: false             # false => version DOI (record.doi); true => conceptdoi
+
+  - name: nfdi4cat_zenodo
+    type: zenodo
+    enabled: true
+    base_url: https://zenodo.org
+    community: nfdi4cat
+    per_page: 100  
+    access_token_env: ZENODO_API_TOKEN 
+    use_concept_doi: false             
+
+  - name: chemotion_reactions
+    type: chemotion
+    enabled: true
+    base_url: https://www.chemotion-repository.net
+    element_type: Reaction         # Sample | Reaction | Container | Collection
+    per_page: 1000                 # the API truncates any page to 1000 anyways
+    resource_types: [reaction]
+    verify_doi_registration: true
+
+  - name: chemotion_collections
+    type: chemotion
+    enabled: true
+    base_url: https://www.chemotion-repository.net
+    element_type: Collection
+    per_page: 1000
+    resource_types: [collection]
+    verify_doi_registration: true 
+    # Chemotion serves no metadata for collections: download_json, download_rdf
+    # and download_json?type=collection all return the literal `null`.
+    datacite_metadata_fallback: true
+
+fuji:
+  base_url: http://localhost:1071
+  endpoint: /fuji/api/v1/evaluate
+  version_endpoint: /fuji/api/v1/openapi.json
+  username: marvel           # default user shipped with the F-UJI image
+  password: wonderwoman      # default password
+  request_timeout_s: 300
+  concurrency: 1             # parallel evaluations. 3 default. 1 disabled.
+  polite_delay_s: 3          # minimum seconds between F-UJI requests, applied to all worker threads
+  # Abort stage-2 run when the landing-page host stops answering.
+  abort_after_consecutive_unresolved: 10
+  abort_unresolved_rate: 0.8
+  abort_unresolved_window: 20
+
+  retry:
+    max_attempts: 3
+    backoff_initial_s: 5
+    backoff_multiplier: 3
+  payload_defaults:
+    test_debug: false
+    use_datacite: true
+    metadata_service_endpoint: ""
+    metadata_service_type: ""
+
+paths:
+  data_dir: data                 # per-repo dirs derived as data/<name>/0N_*
+  comparison_subdir: _comparison # cross-repo output: data/_comparison/
+  logs_dir: logs
+  runs_dir: runs
+
+run:
+  # Set to false for a full re-score, e.g. after changing the pinned F-UJI digest.
+  skip_completed: true
+  # If true, also re-evaluate any DOI whose status is "failed" (default true).
+  retry_failed: true
+  # Free-text label for bookkeeping. Captures the snapshot date.
+  label: baseline_2026_08_14
+  # Checkpoint stage 2 status every N completions.
+  status_checkpoint_every: 10

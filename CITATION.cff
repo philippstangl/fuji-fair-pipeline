@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this software or its derived data, please cite it as below."
+title: "fuji-fair-pipeline: a F-UJI FAIR-assessment pipeline for research data repositories"
+abstract: >-
+  A four-stage pipeline that harvests dataset metadata from Dataverse, 
+  Zenodo/InvenioRDM, and Chemotion repositories, scores each record with the F-UJI FAIR
+  evaluator, and produces per-repository and cross-repository FAIR analysis.
+type: software
+authors:
+  - family-names: Stangl
+    given-names: Philipp
+    email: philipp.stangl@fau.de
+    affiliation: "Friedrich-Alexander-Universität Erlangen-Nürnberg"
+    orcid: "https://orcid.org/0009-0007-4179-2365"
+license: MIT
+version: 0.1.0
+repository-code: 'https://github.com/philippstangl/fuji-fair-pipeline'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23064587
+date-released: "2026-09-30"
+keywords:
+  - FAIR
+  - F-UJI
+  - research data management
+  - Dataverse
+  - Zenodo
+  - NFDI4Cat
+  - metadata quality
+references:
+  - title: F-UJI - An Automated FAIR Data Assessment Tool
+    type: software
+    authors:
+      - given-names: Anusuriya
+        family-names: Devaraju
+        email: anusuriya.devaraju@googlemail.com
+        orcid: 'https://orcid.org/0000-0003-0870-3192'
+      - given-names: Robert
+        family-names: Huber
+        email: rhuber@marum.de
+        orcid: 'https://orcid.org/0000-0003-3000-0020'
+    repository-code: "https://github.com/pangaea-data-publisher/fuji"
+    doi: 10.5281/zenodo.3934401
+    notes: "The FAIR evaluator this pipeline scores with."
