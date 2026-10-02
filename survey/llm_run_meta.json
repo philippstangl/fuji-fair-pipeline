@@ -1,0 +1,15 @@
+{
+  "model_requested": "claude-opus-5",
+  "model_served": "claude-opus-5",
+  "access_date": "2026-08-24",
+  "n_runs": 5,
+  "sampling_parameters": {
+    "temperature": "not set (removed on this model family)",
+    "thinking": "adaptive (model default)",
+    "max_tokens": 16000
+  },
+  "self_consistency_primary_code": 1.0,
+  "blinding": "opaque unit ids (U001-form), the task label, and the PII-redacted statement text, in a fixed shuffled order. Not shown: the paper, the hypothesis, the numeric ratings, the distance covariates, rater identity or any cue to which statements share an author, or deposit identity",
+  "prompt_file": "llm_prompt.txt",
+  "n_units": 47
+}

@@ -1,0 +1,7 @@
+{
+  "type": "llm_first_pass_human_verified",
+  "first_pass": "Claude Opus 5 (claude-opus-5), see llm_run_meta.json",
+  "coder_of_record": "human (P. Stangl)",
+  "declared_on": "2026-08-25",
+  "description": "The model coded every unit from the blinded export of barrier statements. The human reviewer then went through all 47 units with the model's codes visible and corrected what they judged wrong. Final codes are human-authored."
+}

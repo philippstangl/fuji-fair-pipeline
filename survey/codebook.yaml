@@ -1,0 +1,271 @@
+# Codebook for the "largest barrier" statements
+
+version: "1.0"
+frozen: true
+frozen_date: "2026-08-24"
+
+facets:
+  object:
+    assignment: "Exactly one primary code. Zero or more secondary codes."
+    tie_break: >
+      When a statement names several objects, the primary is the first-mentioned,
+      unless the syntax subordinates one ("X because Y" -> Y). Remaining objects
+      become secondary codes. Do not promote all named objects to equal status:
+      that discards the binding-constraint reading the prompt was built on.
+    codes:
+
+      - id: raw_data_absent
+        source: rubric  # data_presence
+        definition: >
+          The measurements the analysis consumed are not in the deposit at all,
+          or only processed/derived values are present where the raw values are
+          needed.
+        include: "no raw data; instrument output missing; only summary tables"
+        exclude: >
+          Data present but undocumented -> variable_semantics_absent.
+          Data present but too few -> volume_insufficient.
+        anchor: "no raw data to start analysis"
+
+      - id: code_absent
+        source: rubric  # code_presence
+        definition: "No analysis code, scripts, or notebooks in the deposit."
+        include: "no code provided; scripts missing"
+        exclude: "Code present but partial -> code_incomplete."
+        anchor: "Code is missing."
+
+      - id: code_incomplete
+        source: rubric  # code_presence
+        definition: >
+          Code is present but does not cover the published analysis - fragments,
+          missing modules, or no path from the code to the reported numbers.
+        anchor: "absence of modular notebooks, where each module shows specific data artefact generation"
+
+      - id: dangling_reference
+        source: inductive
+        definition: >
+          Code or documentation references files that are not resolvable within
+          the deposit. The artefacts exist; the links between them do not.
+        note: >
+          Kept separate from code_incomplete because it is a distinct failure of
+          the deposit as a graph, and because it is mechanically checkable:
+          extract file references from the code, resolve against the manifest.
+        anchor: "Code links/wants to load files not present."
+
+      - id: environment_spec_absent
+        source: rubric  # conditions_specified
+        definition: >
+          Runtime conditions are not specified well enough to recreate the
+          analytical environment - versions, packages, parameters, seeds.
+        anchor: "Python code is not accompanied by standard requirement spec to ease installation"
+
+      - id: method_description_absent
+        source: inductive
+        definition: >
+          The experimental or analytical METHOD is undocumented - how a quantity
+          was measured or computed - independently of whether code exists.
+        note: >
+          No rubric item covers this. It is the wet-lab counterpart to
+          environment_spec_absent, and it is what several raters meant by
+          "reproducibility" in a synthesis rather than a computational sense.
+        anchor: "There is no information about the used experimental analysis method, neither about how conversion or yield was calculated."
+
+      - id: readme_absent
+        source: inductive
+        definition: >
+          No README, guide, or orientation document explaining what the deposit
+          contains or how to start.
+        exclude: "Files exist but are hard to navigate -> index_navigation_absent."
+        anchor: "no read me file, vocabulary without any explanantion"
+
+      - id: index_navigation_absent
+        source: inductive
+        definition: >
+          No catalogue, index, or structure over the files, so the reuser cannot
+          establish what is available without opening everything.
+        anchor: "Catalog/index over files makes it difficult to access what is really available."
+
+      - id: file_naming_opaque
+        source: inductive
+        definition: "File names do not indicate their contents."
+        anchor: "the name of some files on repo4cat (e.g. NM_PDF_102) are not as easy to understand"
+
+      - id: linkage_between_files_unclear
+        source: inductive
+        definition: >
+          The artefacts are present and named, but their relationships are not
+          recoverable - which table feeds which figure, which run produced which
+          output.
+        exclude: >
+          Where the missing link is specifically from data to a PUBLISHED number,
+          prefer traceability.
+        anchor: "no connections between the data no idea what relates to what"
+
+      - id: traceability
+        source: rubric # traceability
+        definition: >
+          The chain from input through analysis to a specific published number
+          cannot be followed.
+        anchor: "difficult to understand these tables and how they are connect, no KPIs to evaluate"
+
+      - id: target_unidentifiable
+        source: rubric # target_identifiable
+        definition: >
+          The published results are not identifiable as concrete numerical
+          targets to reproduce.
+
+      - id: variable_semantics_absent
+        source: rubric  # ml_features_documented
+        definition: >
+          Columns, variables, or features are not documented well enough to know
+          what each means, its units, or how it was measured.
+        anchor: "no read me file, vocabulary without any explanantion"
+
+      - id: volume_insufficient
+        source: rubric  # ml_volume_coverage
+        definition: >
+          Too few examples, or too narrow a spread of conditions, for the
+          intended use.
+        anchor: "not enough data for ML"
+
+      - id: machine_readability
+        source: inductive
+        definition: >
+          Values exist but not in a machine-processable form - numbers only in
+          figures or prose rather than tabular or text form.
+        anchor: "values in some figures (in the published article) are not all available as machine-readable inputs, e.g. tabular or text."
+
+      - id: preview_rendering_absent
+        source: inductive
+        definition: >
+          The repository offers no way to inspect a file without downloading it.
+          A property of the platform, not of the deposit.
+        anchor: "no preview of image files"
+
+      - id: rater_capability
+        source: inductive
+        definition: >
+          The stated barrier is the respondent's own knowledge, expertise, or
+          skill rather than any property of the deposit.
+        note: >
+          Always set capability_flag true alongside this code. See the
+          capability_flag facet - these units carry information about the
+          NUMERIC rating in the same cell, not about the deposit.
+        anchor: "This is guess work for me"
+
+      - id: effort_cost
+        source: inductive
+        definition: >
+          The barrier is the amount of work required rather than anything
+          missing. Nothing blocks reuse; it is expensive.
+        note: "Always set modality: cost alongside this code."
+        anchor: "It would take me hours to access the state of the publication and data in a way that allows a fair (to the authors) review."
+
+      - id: unresolvable
+        source: inductive
+        definition: >
+          The statement's referent cannot be determined from the text. Use this
+          rather than guessing; the count of unresolvable units is reported.
+        anchor: "usage of AI tools"
+
+  locus_of_remedy:
+    assignment: "Exactly one code."
+    rationale: >
+      Separated from the object facet because "no readme" and "no file preview"
+      name the same kind of problem but different responsible parties - and an
+      automated FAIR score attributes both to the deposit.
+    codes:
+      - id: depositor
+        definition: "The person who deposited the data could fix this."
+      - id: repository_platform
+        definition: >
+          Only the repository operator could fix this - viewers, previews,
+          browse and search affordances, download granularity.
+      - id: reuser
+        definition: >
+          Nothing in the deposit or platform would change this; the constraint
+          is the reuser's own expertise or capacity.
+      - id: irreducible
+        definition: >
+          Inherent to the work - the data genuinely does not exist, or the
+          quantity was never measured.
+      - id: unclear
+        definition: "Cannot be determined from the statement."
+
+  modality:
+    assignment: "Exactly one code."
+    rationale: >
+      A paper proposing task-based reusability metrics needs this distinction:
+      some barriers admit a threshold score, others only a cost estimate, and a
+      1-5 Likert item collapses the two.
+    codes:
+      - id: blocker
+        definition: >
+          Binary. The reuse cannot proceed as described, regardless of effort.
+        anchor: "Code is missing."
+      - id: cost
+        definition: >
+          Continuous. Reuse is possible but expensive; the statement quantifies
+          or gestures at the effort.
+        anchor: "It would take some hours to get started"
+      - id: unclear
+        definition: "Cannot be determined."
+
+capability_flag:
+  type: boolean
+  definition: >
+    True when the statement describes the respondent's own limits rather than a
+    property of the deposit.
+  rationale: >
+    These statements are not evidence about the deposit - they are evidence
+    about the RATING. A rater who writes "this is guess work for me" and still
+    supplies a 1-5 score has told us that score is a guess, which no numeric
+    field captures. Flagged cells define a sensitivity subsample for the paired
+    divergence, and the flag can be checked against the separately-measured
+    domain and methods distance covariates.
+  examples:
+    - "This is guess work for me"
+    - "not my research field"
+    - "Lack of experience with programming"
+    - "Not very familar with machine learning to reproduce."
+
+mapping:
+  rubric_item:
+    instruction: >
+      The survey rubric item this barrier corresponds to, or empty if none does.
+      Valid values: data_presence, code_presence, conditions_specified,
+      traceability, target_identifiable, ml_features_documented,
+      ml_volume_coverage.
+    note: >
+      Map to the item the barrier is ABOUT, not the item the rater happened to
+      score lowest - the coder cannot see the scores, and the comparison between
+      the two is a validity check that only works if they are independent.
+  fuji_metric:
+    instruction: >
+      The F-UJI metric id that would detect this barrier, or empty if none
+      would. F-UJI assesses metadata; a barrier about file contents or about
+      references between files has no F-UJI counterpart, and empty is the
+      expected answer far more often than not.
+    note: >
+      Leave empty rather than reaching for a loosely-related metric. The count
+      of statements mapping to no metric is a reported result, so a generous
+      mapping here weakens a claim rather than strengthening it.
+
+decision_rules:
+  - rule: "Exclude submissions where the participant states the task was not performed."
+    applies_to: "R02"
+    rationale: >
+      R02 wrote (translated from German) that they only read through the
+      questions, and left all Model Training items and most Reproduction items
+      blank. The five remaining live ratings still entered the aggregates.
+    disclosed_as: "post-hoc, data-driven"
+  - rule: "Repeated identical statements from one rater count as one stance."
+    applies_to: "R19 (three identical Model Training statements)"
+    rationale: >
+      Three units, one code, one rater. Reporting statement counts alongside
+      rater counts keeps this visible rather than letting one rater's repetition
+      inflate a category.
+  - rule: "Free-text non-response is reported, not imputed."
+    applies_to: "R14 (0 of 6 statements, full numeric ratings)"
+  - rule: "Translate non-English statements and mark them."
+    applies_to: "two German responses"
+    rationale: "State who translated and whether back-translation was used."
